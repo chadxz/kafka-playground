@@ -1,0 +1,41 @@
+# Administrative REST requests to the Confluence Kafka REST Proxy.
+# These are formatted for use with the IntelliJ HTTP Client, see
+# https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html.
+
+###
+# @name list-clusters
+# https://docs.confluent.io/platform/current/kafka-rest/api.html#cluster-v3
+GET http://localhost:8082/v3/clusters
+
+###
+# @name list-topics
+# https://docs.confluent.io/platform/current/kafka-rest/api.html#topic-v3
+GET http://localhost:8082/v3/clusters/b41bf64d7e7b4483/topics
+
+###
+# @name create-topic
+# https://docs.confluent.io/platform/current/kafka-rest/api.html#post--clusters-cluster_id-topics
+POST http://localhost:8082/v3/clusters/b41bf64d7e7b4483/topics
+Content-Type: application/json
+
+{
+  "topic_name": "supercool",
+  "partitions_count": 3,
+  "replication_factor": 1,
+  "configs": [
+    {
+      "name": "cleanup.policy",
+      "value": "compact"
+    }
+  ]
+}
+
+###
+# @name get-topic
+# https://docs.confluent.io/platform/current/kafka-rest/api.html#get--clusters-cluster_id-topics-topic_name
+GET http://localhost:8082/v3/clusters/b41bf64d7e7b4483/topics/supercool
+
+###
+# @name delete-topic
+# https://docs.confluent.io/platform/current/kafka-rest/api.html#delete--clusters-cluster_id-topics-topic_name
+DELETE http://localhost:8082/v3/clusters/b41bf64d7e7b4483/topics/supercool
