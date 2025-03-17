@@ -29,3 +29,67 @@ I'm referencing these resources for learning more about Kafka:
 - Stephane Maarek's Conduktor course https://learn.conduktor.io/kafka/
 - Chad Crowell's Kafka Deep Dive course https://app.pluralsight.com/ilx/apache-kafka-deep-dive/table-of-content
 - Will Boyd's CCDAK course https://app.pluralsight.com/ilx/confluent-certified-developer-for-apache-kafka-(ccdak)/table-of-content
+
+## Interesting things
+
+### making requests to the REST Proxy
+
+The [Confluent REST Proxy](https://docs.confluent.io/platform/current/kafka-rest/index.html)
+is a REST API for interacting with Kafka. Some example requests can be found in
+[admin-requests.http](admin-requests.http). The server is listening on port 8082.
+
+### checking Kafka connectivity
+
+An easy way to check that Kafka is working is with the `kcat` command line tool.
+
+```shell
+brew install kafkacat
+```
+
+Then you can make a request for metadata using `-L`:
+
+```shell
+kcat -b localhost:9092 -L
+Metadata for all topics (from broker -1: localhost:9092/bootstrap):
+ 1 brokers:
+  broker 1 at broker:9092 (controller)
+ 8 topics:
+  topic "docker-connect-status" with 5 partitions:
+    partition 0, leader 1, replicas: 1, isrs: 1
+...    
+```
+
+### Using binaries inside broker container
+
+```shell
+docker exec -ti broker bash
+
+> kafka-<TAB><TAB>
+kafka-acls                        kafka-log-dirs
+kafka-broker-api-versions         kafka-metadata-quorum
+kafka-client-metrics              kafka-metadata-shell
+kafka-cluster                     kafka-mirror-maker
+kafka-configs                     kafka-preferred-replica-election
+kafka-console-consumer            kafka-producer-perf-test
+kafka-console-producer            kafka-reassign-partitions
+kafka-consumer-groups             kafka-replica-verification
+kafka-consumer-perf-test          kafka-run-class
+kafka-delegation-tokens           kafka-server-start
+kafka-delete-records              kafka-server-stop
+kafka-dump-log                    kafka-storage
+kafka-e2e-latency                 kafka-streams-application-reset
+kafka-features                    kafka-topics
+kafka-get-offsets                 kafka-transactions
+kafka-jmx                         kafka-verifiable-consumer
+kafka-leader-election             kafka-verifiable-producer
+
+> kafka-topics --bootstrap-server localhost:9092 --create \
+    --topic test --partitions 3 --replication-factor 1
+Created topic test.
+
+> kafka-topics --bootstrap-server localhost:9092 --topic test --describe
+Topic: test     TopicId: mnuRC-6PS8mxvRQK24CBbA PartitionCount: 3       ReplicationFactor: 1  Configs:
+        Topic: test     Partition: 0    Leader: 1       Replicas: 1     Isr: 1  Elr:    LastKnownElr:
+        Topic: test     Partition: 1    Leader: 1       Replicas: 1     Isr: 1  Elr:    LastKnownElr:
+        Topic: test     Partition: 2    Leader: 1       Replicas: 1     Isr: 1  Elr:    LastKnownElr:
+```
