@@ -49,22 +49,24 @@ brew install kafkacat
 Then you can make a request for metadata using `-L`:
 
 ```shell
-kcat -b localhost:9092 -L
-Metadata for all topics (from broker -1: localhost:9092/bootstrap):
- 1 brokers:
-  broker 1 at broker:9092 (controller)
+kcat -b localhost:19092 -L
+Metadata for all topics (from broker -1: localhost:19092/bootstrap):
+ 3 brokers:
+  broker 1 at broker1:9092
+  broker 2 at broker2:9092 (controller)
+  broker 3 at broker3:9092
  8 topics:
   topic "docker-connect-status" with 5 partitions:
-    partition 0, leader 1, replicas: 1, isrs: 1
-...    
+    partition 0, leader 3, replicas: 3, isrs: 3
+    ...    
 ```
 
 ### Using binaries inside broker container
 
 ```shell
-docker exec -ti broker bash
+docker exec -ti broker1 bash
 
-> kafka-<TAB><TAB>
+$ kafka-<TAB><TAB>
 kafka-acls                        kafka-log-dirs
 kafka-broker-api-versions         kafka-metadata-quorum
 kafka-client-metrics              kafka-metadata-shell
@@ -83,13 +85,27 @@ kafka-get-offsets                 kafka-transactions
 kafka-jmx                         kafka-verifiable-consumer
 kafka-leader-election             kafka-verifiable-producer
 
-> kafka-topics --bootstrap-server localhost:9092 --create \
-    --topic test --partitions 3 --replication-factor 1
+$ kafka-topics --bootstrap-server localhost:9092 --create \
+    --topic test --partitions 3 --replication-factor 3
 Created topic test.
 
-> kafka-topics --bootstrap-server localhost:9092 --topic test --describe
+$ kafka-topics --bootstrap-server localhost:9092 --topic test --describe
 Topic: test     TopicId: mnuRC-6PS8mxvRQK24CBbA PartitionCount: 3       ReplicationFactor: 1  Configs:
         Topic: test     Partition: 0    Leader: 1       Replicas: 1     Isr: 1  Elr:    LastKnownElr:
         Topic: test     Partition: 1    Leader: 1       Replicas: 1     Isr: 1  Elr:    LastKnownElr:
         Topic: test     Partition: 2    Leader: 1       Replicas: 1     Isr: 1  Elr:    LastKnownElr:
+        
+$ kafka-console-producer --bootstrap-server localhost:9092 --topic test
+>message1
+>message2
+>message3
+>^C
+
+$ kafka-console-consumer --bootstrap-server localhost:9092 --topic test --from-beginning
+message1
+message2
+message3
+^CProcessed a total of 3 messages
+
+$ exit
 ```
